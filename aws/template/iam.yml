@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  SystemId:
+    Type: String
+    Description: System's ID used as a part of the AWS resource names
+
+Resources:
+  # https://docs.aws.amazon.com/ja_jp/apprunner/latest/dg/security_iam_service-with-iam.html
+  AppRunnerBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AppRunnerBuildRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - build.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+
+  AppRunnerServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaAccessRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - tasks.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+
+  DynamoDBItemAccessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: CodePipelinePolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:DescribeStream
+              - dynamodb:DescribeTable
+              - dynamodb:Get*
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:BatchWriteItem
+              - dynamodb:DeleteItem
+              - dynamodb:UpdateItem
+              - dynamodb:PutItem
+            Resource:
+              - 'arn:aws:dynamodb:${AWS::Region}:*:table/${SystemId}*'
+      Roles:
+        - !Ref AppRunnerServiceRole
+
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CodePipelineServiceRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCodePipelineFullAccess
+        - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
+        - arn:aws:iam::aws:policy/AWSCodeCommitFullAccess
+        - arn:aws:iam::aws:policy/AWSCodeDeployFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchEventsFullAccess
+        - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+                - codebuild.amazonaws.com
+                - codedeploy.amazonaws.com
+                - cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+
+  CodePipelineServicePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: CodePipelinePolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:PutObjectAcl
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:GetBucketVersioning
+              - s3:ListBucket
+            Resource:
+              - !Sub arn:aws:s3:::${SystemId}-temporary/*
+          - Effect: Allow
+            Action:
+              - iam:GetRole
+              - iam:PassRole
+            Resource:
+              - '*'
+      Roles:
+        - !Ref CodePipelineRole
+
+Outputs:
+  AppRunnerBuildRoleArn:
+    Value: !GetAtt AppRunnerBuildRole.Arn
+    Export:
+      Name: AppRunnerBuildRoleArn
+  AppRunnerServiceRoleArn:
+    Value: !GetAtt AppRunnerServiceRole.Arn
+    Export:
+      Name: AppRunnerServiceRoleArn
+  CodePipelineServiceRoleArn:
+    Value: !GetAtt CodePipelineServiceRole.Arn
+    Export:
+      Name: CodePipelineServiceRoleArn

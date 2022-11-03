@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  SystemId:
+    Type: String
+    Description: System's ID used as a part of the AWS resource names
+
+Resources:
+  Repository:
+    DeletionPolicy: Retain
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: '${SystemId}'
+      RepositoryDescription: "String"
+
+  ContainerRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: "${SystemId}"
+      EncryptionConfiguration:
+        EncryptionType: "KMS"
+      ImageScanningConfiguration:
+        ScanOnPush: false
+      ImageTagMutability: "MUTABLE"
+
+  PipelineTemporaryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: "Private"
+      BucketName: "${SystemId}-temporary"
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 7
+            Status: Enable
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
