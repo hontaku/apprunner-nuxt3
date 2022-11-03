@@ -1,0 +1,8 @@
+**/node_modules/*
+.eslintrc.js
+package-lock.json
+/**/cdk.out/*
+**/dist/*
+**/build/*
+**/coverage/*
+tools/*
