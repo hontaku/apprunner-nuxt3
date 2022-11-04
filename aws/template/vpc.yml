@@ -1,0 +1,271 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  SystemId:
+    Type: String
+    Description: System's ID used as a part of the AWS resource names
+  Env:
+    Type: String
+    Description: target environment
+    AllowedValues:
+      - dev
+      - prod
+  NwSeg:
+    Type: String
+    Description: network segment
+    AllowedValues:
+      - 10.0.0
+      - 10.0.1
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Sub ${NwSeg}.0/24
+
+  # AZa
+  PublicSubnetAZa:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub '${NwSeg}.0/27'
+      AvailabilityZone: ap-northeast-1a
+  ProtectSubnetAZa:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub '${NwSeg}.64/26'
+      AvailabilityZone: ap-northeast-1a
+  PrivateSubnetAZa:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub '${NwSeg}.32/28'
+      AvailabilityZone: ap-northeast-1a
+
+  # AZc
+  PublicSubnetAZc:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub '${NwSeg}.128/27'
+      AvailabilityZone: ap-northeast-1c
+  ProtectSubnetAZc:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub '${NwSeg}.192/26'
+      AvailabilityZone: ap-northeast-1c
+  PrivateSubnetAZc:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub '${NwSeg}.160/28'
+      AvailabilityZone: ap-northeast-1c
+
+  PublicSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Public Security Group
+      SecurityGroupIngress:
+        # 受信は不特定/HTTPSのみ許可
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.0/27'
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.128/27'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        # 送信はProtect/HTTPのみ許可
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.0/27'
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.128/27'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NWSEG}.64/26'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NWSEG}.192/26'
+      VpcId: !Ref VPC
+
+  ProtectSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Protect Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.64/26'
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.192/26'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NWSEG}.0/27'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NWSEG}.128/27'
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.64/26'
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NWSEG}.192/26'
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !Sub '${NWSEG}.32/28'
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !Sub '${NWSEG}.160/28'
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          CidrIp: !Sub '${NWSEG}.32/28'
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          CidrIp: !Sub '${NWSEG}.160/28'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: SecurityGroupProtect
+  PrivateSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !Sub '${NWSEG}.64/26'
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !Sub '${NWSEG}.192/26'
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          CidrIp: !Sub '${NWSEG}.64/26'
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          CidrIp: !Sub '${NWSEG}.192/26'
+      VpcId: !Ref VPC
+
+  # VPC Internet rooting
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+  PublicSubnetRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  RouteInternetGateway:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicSubnetRouteTable
+
+  # PublicSubnet Rooting
+  PublicSubnetRouteTableAssociationAZa:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTable
+      SubnetId: !Ref PublicSubnetAZa
+  PublicSubnetRouteTableAssociationAZc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTable
+      SubnetId: !Ref PublicSubnetAZc
+
+  # AZa ProtectSubnet rooting
+  ElasticIPAZa:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NatGatewayAZa:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIPAZa.AllocationId
+      SubnetId: !Ref PublicSubnetAZa
+    DependsOn:
+      - ElasticIPAZa
+  ProtectSubnetRouteTableAZa:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  RouteNatGatewayAZa:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGatewayAZa
+      RouteTableId: !Ref ProtectSubnetRouteTableAZa
+  ProtectSubnetRouteTableAssociationAZa:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref ProtectSubnetRouteTableAZc
+      SubnetId: !Ref ProtectSubnetAZa
+
+  # AZa ProtectSubnet rooting
+  ElasticIPAZc:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NatGatewayAZc:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIPAZc.AllocationId
+      SubnetId: !Ref PublicSubnetAZc
+    DependsOn:
+      - ElasticIPAZc
+  ProtectSubnetRouteTableAZc:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  ProtectSubnetRouteAZc:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGatewayAZc
+      RouteTableId: !Ref ProtectSubnetRouteTableAZc
+  ProtectSubnetRouteTableAssociationAZc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref ProtectSubnetRouteAZc
+      SubnetId: !Ref ProtectSubnetAZc
+
+
