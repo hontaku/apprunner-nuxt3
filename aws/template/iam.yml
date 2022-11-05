@@ -25,7 +25,7 @@ Resources:
   AppRunnerServiceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: LambdaAccessRole
+      RoleName: AppRunnerServiceRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -39,7 +39,7 @@ Resources:
   DynamoDBItemAccessPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: CodePipelinePolicy
+      ManagedPolicyName: DynamoDBItemAccessPolicy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -56,7 +56,7 @@ Resources:
               - dynamodb:UpdateItem
               - dynamodb:PutItem
             Resource:
-              - 'arn:aws:dynamodb:${AWS::Region}:*:table/${SystemId}*'
+              - !Sub 'arn:aws:dynamodb:${AWS::Region}:*:table/${SystemId}*'
       Roles:
         - !Ref AppRunnerServiceRole
 
@@ -90,7 +90,7 @@ Resources:
   CodePipelineServicePolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: CodePipelinePolicy
+      ManagedPolicyName: CodePipelineServicePolicy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -111,7 +111,7 @@ Resources:
             Resource:
               - '*'
       Roles:
-        - !Ref CodePipelineRole
+        - !Ref CodePipelineServiceRole
 
 Outputs:
   AppRunnerBuildRoleArn:
