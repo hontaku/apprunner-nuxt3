@@ -21,6 +21,8 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Sub ${NwSeg}.0/24
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
 
   # AZa
   PublicSubnetAZa:
@@ -39,7 +41,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: !Sub '${NwSeg}.32/28'
+      CidrBlock: !Sub '${NwSeg}.192/28'
       AvailabilityZone: ap-northeast-1a
 
   # AZc
@@ -47,19 +49,19 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: !Sub '${NwSeg}.128/27'
+      CidrBlock: !Sub '${NwSeg}.32/27'
       AvailabilityZone: ap-northeast-1c
   ProtectSubnetAZc:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: !Sub '${NwSeg}.192/26'
+      CidrBlock: !Sub '${NwSeg}.128/26'
       AvailabilityZone: ap-northeast-1c
   PrivateSubnetAZc:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: !Sub '${NwSeg}.160/28'
+      CidrBlock: !Sub '${NwSeg}.208/28'
       AvailabilityZone: ap-northeast-1c
 
   PublicSecurityGroup:
@@ -67,37 +69,78 @@ Resources:
     Properties:
       GroupDescription: Public Security Group
       SecurityGroupIngress:
-        # 受信は不特定/HTTPSのみ許可
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.0/27'
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.128/27'
+        # Internet
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Sub '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '0.0.0.0/0'
+        - IpProtocol: udp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '0.0.0.0/0'
+        - IpProtocol: udp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '0.0.0.0/0'
+        # Public Subnet AZa
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NwSeg}.0/27'
+        # Public Subnet AZc
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NwSeg}.32/27'
       SecurityGroupEgress:
-        # 送信はProtect/HTTPのみ許可
+        # Public Subnet AZa
         - IpProtocol: tcp
           FromPort: 0
           ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.0/27'
+          CidrIp: !Sub '${NwSeg}.0/27'
+        # Public Subnet AZc
         - IpProtocol: tcp
           FromPort: 0
           ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.128/27'
+          CidrIp: !Sub '${NwSeg}.32/27'
+        # Protect Subnet AZa
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Sub '${NWSEG}.64/26'
+          CidrIp: !Sub '${NwSeg}.64/26'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.64/26'
+        - IpProtocol: udp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NwSeg}.64/26'
+        - IpProtocol: udp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.64/26'
+        # Protect Subnet AZc
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Sub '${NWSEG}.192/26'
+          CidrIp: !Sub '${NwSeg}.128/26'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.128/26'
+        - IpProtocol: udp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NwSeg}.128/26'
+        - IpProtocol: udp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.128/26'
       VpcId: !Ref VPC
 
   ProtectSecurityGroup:
@@ -105,47 +148,52 @@ Resources:
     Properties:
       GroupDescription: Protect Security Group
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.64/26'
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.192/26'
+        # Public Subnet AZa
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Sub '${NWSEG}.0/27'
+          CidrIp: !Sub '${NwSeg}.0/27'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.0/27'
+        - IpProtocol: udp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NwSeg}.0/27'
+        - IpProtocol: udp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.0/27'
+        # Public Subnet AZc
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Sub '${NWSEG}.128/27'
+          CidrIp: !Sub '${NwSeg}.32/27'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.32/27'
+        - IpProtocol: udp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Sub '${NwSeg}.32/27'
+        - IpProtocol: udp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Sub '${NwSeg}.32/27'
+        # Protect Subnet AZa
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NwSeg}.64/26'
+        # Protect Subnet AZc
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NwSeg}.128/26'
       SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.64/26'
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Sub '${NWSEG}.192/26'
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          CidrIp: !Sub '${NWSEG}.32/28'
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          CidrIp: !Sub '${NWSEG}.160/28'
-        - IpProtocol: tcp
-          FromPort: 6379
-          ToPort: 6379
-          CidrIp: !Sub '${NWSEG}.32/28'
-        - IpProtocol: tcp
-          FromPort: 6379
-          ToPort: 6379
-          CidrIp: !Sub '${NWSEG}.160/28'
+        # Public Subnet AZa / AZc
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -154,31 +202,59 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+        # Protect Subnet AZa
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NwSeg}.64/26'
+        # Protect Subnet AZa
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Sub '${NwSeg}.128/26'
+        # Private Subnet AZa
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !Sub '${NwSeg}.192/28'
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Sub '${NwSeg}.192/28'
+        # Private Subnet AZc
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !Sub '${NwSeg}.208/28'
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Sub '${NwSeg}.208/28'
       VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: SecurityGroupProtect
+
   PrivateSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Private Security Group
       SecurityGroupIngress:
+        # Private Subnet AZa
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: !Sub '${NWSEG}.64/26'
+          CidrIp: !Sub '${NwSeg}.64/26'
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Sub '${NwSeg}.64/26'
+        # Private Subnet AZc
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: !Sub '${NWSEG}.192/26'
+          CidrIp: !Sub '${NwSeg}.128/26'
         - IpProtocol: tcp
-          FromPort: 6379
-          ToPort: 6379
-          CidrIp: !Sub '${NWSEG}.64/26'
-        - IpProtocol: tcp
-          FromPort: 6379
-          ToPort: 6379
-          CidrIp: !Sub '${NWSEG}.192/26'
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Sub '${NwSeg}.128/26'
       VpcId: !Ref VPC
 
   # VPC Internet rooting
@@ -237,7 +313,7 @@ Resources:
   ProtectSubnetRouteTableAssociationAZa:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref ProtectSubnetRouteTableAZc
+      RouteTableId: !Ref ProtectSubnetRouteTableAZa
       SubnetId: !Ref ProtectSubnetAZa
 
   # AZa ProtectSubnet rooting
@@ -265,7 +341,63 @@ Resources:
   ProtectSubnetRouteTableAssociationAZc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref ProtectSubnetRouteAZc
+      RouteTableId: !Ref ProtectSubnetRouteTableAZc
       SubnetId: !Ref ProtectSubnetAZc
 
+  AppRunnerEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - !Ref ProtectSecurityGroup
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.apprunner"
+      SubnetIds:
+        - !Ref ProtectSubnetAZa
+        - !Ref ProtectSubnetAZc
+      VpcEndpointType: "Interface"
+      VpcId: !Ref VPC
 
+Outputs:
+  VPC:
+    Value: !Ref VPC
+    Export:
+      Name: !Sub "${SystemId}-VPC"
+
+  PublicSubnetAZa:
+    Value: !Ref PublicSubnetAZa
+    Export:
+      Name: !Sub "${SystemId}-PublicSubnetAZa"
+  ProtectSubnetAZa:
+    Value: !Ref ProtectSubnetAZa
+    Export:
+      Name: !Sub "${SystemId}-ProtectSubnetAZa"
+  PrivateSubnetAZa:
+    Value: !Ref PrivateSubnetAZa
+    Export:
+      Name: !Sub "${SystemId}-PrivateSubnetAZa"
+
+  PublicSubnetAZc:
+    Value: !Ref PublicSubnetAZc
+    Export:
+      Name: !Sub "${SystemId}-PublicSubnetAZc"
+  ProtectSubnetAZc:
+    Value: !Ref ProtectSubnetAZc
+    Export:
+      Name: !Sub "${SystemId}-ProtectSubnetAZc"
+  PrivateSubnetAZc:
+    Value: !Ref PrivateSubnetAZc
+    Export:
+      Name: !Sub "${SystemId}-PrivateSubnetAZc"
+
+  PublicSecurityGroup:
+    Value: !Ref PublicSecurityGroup
+    Export:
+      Name: !Sub "${SystemId}-PublicSecurityGroup"
+  ProtectSecurityGroup:
+    Value: !Ref ProtectSecurityGroup
+    Export:
+      Name: !Sub "${SystemId}-ProtectSecurityGroup"
+  PrivateSecurityGroup:
+    Value: !Ref PrivateSecurityGroup
+    Export:
+      Name: !Sub "${SystemId}-PrivateSecurityGroup"
