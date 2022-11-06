@@ -3,6 +3,7 @@ import 'source-map-support/register'
 import * as cdk from 'aws-cdk-lib'
 import { PipelineStack } from '../lib/pipeline/stack'
 import { getConfig } from '../config'
+import { AppRunnerStack } from '../lib/apprunner/stack'
 const app = new cdk.App()
 
 // Contextの値は次の優先順位で決定される（高 > 低）
@@ -29,6 +30,12 @@ const synthesizerProps = {
 }
 
 new PipelineStack(app, `${systemId}-${env}-pipeline-stack`, {
+  synthesizer: new cdk.CliCredentialsStackSynthesizer(synthesizerProps),
+  config,
+  env: { region: 'ap-northeast-1' }
+})
+
+new AppRunnerStack(app, `${systemId}-${env}-apprunner-stack`, {
   synthesizer: new cdk.CliCredentialsStackSynthesizer(synthesizerProps),
   config,
   env: { region: 'ap-northeast-1' }
