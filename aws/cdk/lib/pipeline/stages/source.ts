@@ -31,7 +31,7 @@ export class Source {
     const repo = CodeCommit.Repository.fromRepositoryName(
       params.cdkApp,
       `CodeCommit`,
-      Fn.importValue(`${params.systemId}-${params.env}-container-repository-name`)
+      Fn.importValue(`${params.systemId}-repository-name`)
     )
     const action = new CodePipelineActions.CodeCommitSourceAction({
       actionName: 'CodeCommit',

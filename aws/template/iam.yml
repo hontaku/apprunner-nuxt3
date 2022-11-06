@@ -103,7 +103,7 @@ Resources:
               - s3:GetBucketVersioning
               - s3:ListBucket
             Resource:
-              - !Sub arn:aws:s3:::${SystemId}-temporary/*
+              - !Sub arn:aws:s3:::${SystemId}-*-temporary/*
           - Effect: Allow
             Action:
               - iam:GetRole
