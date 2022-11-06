@@ -3,19 +3,32 @@ Parameters:
   SystemId:
     Type: String
     Description: System's ID used as a part of the AWS resource names
+  Env:
+    Type: String
+    Description: target environment
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+
+Conditions:
+  CreateDevResources: !Equals
+    - !Ref Env
+    - dev
 
 Resources:
   Repository:
-    DeletionPolicy: Retain
     Type: AWS::CodeCommit::Repository
+    Condition: CreateDevResources
+    DeletionPolicy: Retain
     Properties:
-      RepositoryName: '${SystemId}'
+      RepositoryName: !Sub '${SystemId}'
       RepositoryDescription: "String"
 
   ContainerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: "${SystemId}"
+      RepositoryName: !Sub "${SystemId}-${Env}"
       EncryptionConfiguration:
         EncryptionType: "KMS"
       ImageScanningConfiguration:
@@ -26,13 +39,51 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: "Private"
-      BucketName: "${SystemId}-temporary"
+      BucketName: !Sub "${SystemId}-${Env}-temporary"
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 7
-            Status: Enable
+            Status: Enabled
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+
+Outputs:
+  RepositoryName:
+    Condition: CreateDevResources
+    Value: !GetAtt Repository.Name
+    Export:
+      Name: !Sub "${SystemId}-repository-name"
+  RepositoryArn:
+    Condition: CreateDevResources
+    Value: !GetAtt Repository.Arn
+    Export:
+      Name: !Sub "${SystemId}-repository-arn"
+
+  ContainerRepositoryName:
+    Value: !Ref ContainerRepository
+    Export:
+      Name: !Sub "${SystemId}-${Env}-container-repository-name"
+  ContainerRepositoryUri:
+    Value: !GetAtt ContainerRepository.RepositoryUri
+    Export:
+      Name: !Sub "${SystemId}-${Env}-container-repository-uri"
+  ContainerRepositoryArn:
+    Value: !GetAtt ContainerRepository.Arn
+    Export:
+      Name: !Sub "${SystemId}-${Env}-container-repository-arn"
+
+  PipelineTemporaryBucketName:
+    Value: !Ref PipelineTemporaryBucket
+    Export:
+      Name: !Sub "${SystemId}-${Env}-pipeline-temporary-bucket-name"
+  PipelineTemporaryBucketArn:
+    Value: !GetAtt PipelineTemporaryBucket.Arn
+    Export:
+      Name: !Sub "${SystemId}-${Env}-pipeline-temporary-bucket-arn"
+  PipelineTemporaryBucketDomainName:
+    Value: !GetAtt PipelineTemporaryBucket.DomainName
+    Export:
+      Name: !Sub "${SystemId}-${Env}-pipeline-temporary-bucket-domain-name"
