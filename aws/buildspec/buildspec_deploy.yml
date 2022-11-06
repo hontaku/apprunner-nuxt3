@@ -19,4 +19,4 @@ phases:
   post_build:
     commands:
       - cd ${CODEBUILD_SRC_DIR}/aws/cdk
-      - npm run deploy:${ENV} -- -c imageTag=$IMAGE_TAG
+      - npm run deploy:apprunner-${ENV} -- -c imageTag=$IMAGE_TAG
