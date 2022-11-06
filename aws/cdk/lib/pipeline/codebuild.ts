@@ -18,6 +18,7 @@ export const getCodebuildProject = (params: CodebuildParams): action => {
     environment: {
       buildImage: CodeBuild.LinuxBuildImage.AMAZON_LINUX_2_4,
       computeType: CodeBuild.ComputeType.SMALL,
+      privileged: true,
       environmentVariables: {
         ENV: { value: params.env },
         SYSTEM_ID: { value: params.systemId },
