@@ -74,6 +74,7 @@ Resources:
         - arn:aws:iam::aws:policy/CloudWatchEventsFullAccess
         - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+        - arn:aws:iam::aws:policy/AWSAppRunnerFullAccess
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
