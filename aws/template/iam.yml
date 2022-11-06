@@ -111,6 +111,13 @@ Resources:
               - iam:PassRole
             Resource:
               - '*'
+          # AWSAppRunnerFullAccessにはCreateServiceLinkedRoleがあるが、VPCコネクタで使うエンドポイントに対応していないと思われる
+          # https://repost.aws/questions/QU6Pp08CACTf6hX5FRHhhdDw/missing-resource-permission-in-aws-app-runner-full-access-causes-failure-when-calling-the-create-vpc-connector-operation
+          - Effect: Allow
+            Action:
+              - iam:CreateServiceLinkedRole
+            Resource:
+              - 'arn:aws:iam::*:role/aws-service-role/apprunner.amazonaws.com/AWSServiceRoleForAppRunner'
       Roles:
         - !Ref CodePipelineServiceRole
 
