@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This stack includes resources needed to deploy AWS CDK apps into this environment
+
+Parameters:
+  Qualifier:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9_-]{1,10}'
+    ConstraintDescription: Qualifier must be an alphanumeric identifier of at most 10 characters
+  # 以下2つのパラメーターは不要だが、"cdk bootstrap"コマンド時に失敗するために用意する。
+  # マネジメントコンソールからデプロイする場合消してもOK
+  FileAssetsBucketKmsKeyId:
+    Description: This parameter is unnecessary, but it is defined because it causes a validation error in the bootstrap command.
+    Default: 'UNUSED'
+    Type: String
+  PublicAccessBlockConfiguration:
+    Description: This parameter is unnecessary, but it is defined because it causes a validation error in the bootstrap command.
+    Default: 'true'
+    Type: 'String'
+    AllowedValues: ['true']
+
+Resources:
+  # The SSM parameter is used in pipeline-deployed templates to verify the version of the bootstrap resources.
+  CdkBootstrapVersion:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: !Sub '/cdk-bootstrap/${Qualifier}/version'
+      Value: '13'
+
+Outputs:
+  BucketName:
+    Description: This output is defined because it is needed by the Bootstrap command.
+    Value: 'UNUSED'
+  BucketDomainName:
+    Description: This output is defined because it is needed by the Bootstrap command.
+    Value: 'UNUSED'
+  BootstrapVersion:
+    Description: The version of the bootstrap resources that are currently mastered
+      in this stack
+    Value: !GetAtt CdkBootstrapVersion.Value
