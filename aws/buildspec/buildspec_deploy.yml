@@ -6,6 +6,8 @@ phases:
     commands:
       - echo 'install'
       - aws --version
+      - cd ${CODEBUILD_SRC_DIR}/aws/cdk
+      - npm ci
 
   pre_build:
     commands:
@@ -14,14 +16,7 @@ phases:
 
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo $IMAGE_TAG
-      - aws ecr get-login-password | docker login --username AWS --password-stdin $REPOSITORY_URI
-  build:
-    commands:
-      - docker build --force-rm=true -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-
-
+      - cd ${CODEBUILD_SRC_DIR}/aws/cdk
+      - npm run deploy:${ENV} -- -c imageTag=$IMAGE_TAG
