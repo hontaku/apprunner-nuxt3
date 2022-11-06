@@ -1,0 +1,30 @@
+import * as CodePipelineActions from 'aws-cdk-lib/aws-codepipeline-actions'
+
+/** 反映時に承認を得るためのStageのアクションを作るClass */
+export class Approval {
+  /** アクション(Developper以外にも増えることを想定) */
+  private _actions: {
+    developper: CodePipelineActions.ManualApprovalAction
+  }
+
+  /** コンストラクタ(Stageのactionを作成する関数を呼ぶ) */
+  constructor() {
+    this._actions = {
+      developper: this.createDevelopperApploval()
+    }
+  }
+
+  /** ActionのGetter */
+  get actions() {
+    // CodePipelineのaddStageに配列をそのまま渡せるようにする
+    return [this._actions.developper]
+  }
+
+  /** 開発者向けApprovalアクション作成 */
+  private createDevelopperApploval() {
+    return new CodePipelineActions.ManualApprovalAction({
+      actionName: 'developper-apploval',
+      additionalInformation: `Please review`
+    })
+  }
+}
