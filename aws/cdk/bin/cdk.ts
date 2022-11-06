@@ -1,21 +1,35 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { CdkStack } from '../lib/cdk-stack';
+import 'source-map-support/register'
+import * as cdk from 'aws-cdk-lib'
+import { PipelineStack } from '../lib/pipeline/stack'
+import { getConfig } from '../config'
+const app = new cdk.App()
 
-const app = new cdk.App();
-new CdkStack(app, 'CdkStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
+// Contextの値は次の優先順位で決定される（高 > 低）
+// construct.node.setContext() > cliオプション'cdk deploy --context key=value' > ./cdk.json > ~/.cdk.json > AWSアカウントから自動補完
+// https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/context.html#context_construct
+// デプロイ先を切り替えるためにpackage.json内のコマンドでコンテキストを変えている
+const env = app.node.tryGetContext('env') as string
+const systemId = app.node.tryGetContext('systemId') as string
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+if (!systemId) throw new Error('Context value [systemid] is invalid.')
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+if (env !== 'dev' && env !== 'stg' && env !== 'prod') {
+  throw new Error('Context value [env] is invalid.')
+}
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+// 既存のparameter.jsonをTypescript化することで型定義が利く＆記載漏れを防ぐことができる
+// 参考 https://maku.blog/p/vx5ta85/
+const config = getConfig(env)
+
+const synthesizerProps = {
+  fileAssetsBucketName: `${systemId}-${env}-temporary`,
+  bucketPrefix: `cdk-temporary-${env}`,
+  qualifier: `${systemId}-${env}-cdk`
+}
+
+new PipelineStack(app, `${systemId}-${env}-pipeline-stack`, {
+  synthesizer: new cdk.CliCredentialsStackSynthesizer(synthesizerProps),
+  config,
+  env: { region: 'ap-northeast-1' }
+})
