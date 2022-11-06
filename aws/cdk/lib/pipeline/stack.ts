@@ -52,7 +52,7 @@ export class PipelineStack extends Stack {
       role: pipelineRole
     })
 
-    const applovalActions = new Approval()
+    const applovalActions = new Approval(pipelineRole)
 
     const deployActions = new Deploy({
       systemId,
