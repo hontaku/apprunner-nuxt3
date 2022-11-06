@@ -8,6 +8,7 @@ Parameters:
     Description: target environment
     AllowedValues:
       - dev
+      - stg
       - prod
   NwSeg:
     Type: String
@@ -20,6 +21,11 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       CidrBlock: !Sub ${NwSeg}.0/24
       EnableDnsHostnames: true
       EnableDnsSupport: true
@@ -28,18 +34,33 @@ Resources:
   PublicSubnetAZa:
     Type: AWS::EC2::Subnet
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
       CidrBlock: !Sub '${NwSeg}.0/27'
       AvailabilityZone: ap-northeast-1a
   ProtectSubnetAZa:
     Type: AWS::EC2::Subnet
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
       CidrBlock: !Sub '${NwSeg}.64/26'
       AvailabilityZone: ap-northeast-1a
   PrivateSubnetAZa:
     Type: AWS::EC2::Subnet
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
       CidrBlock: !Sub '${NwSeg}.192/28'
       AvailabilityZone: ap-northeast-1a
@@ -48,18 +69,33 @@ Resources:
   PublicSubnetAZc:
     Type: AWS::EC2::Subnet
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
       CidrBlock: !Sub '${NwSeg}.32/27'
       AvailabilityZone: ap-northeast-1c
   ProtectSubnetAZc:
     Type: AWS::EC2::Subnet
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
       CidrBlock: !Sub '${NwSeg}.128/26'
       AvailabilityZone: ap-northeast-1c
   PrivateSubnetAZc:
     Type: AWS::EC2::Subnet
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
       CidrBlock: !Sub '${NwSeg}.208/28'
       AvailabilityZone: ap-northeast-1c
@@ -67,6 +103,11 @@ Resources:
   PublicSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       GroupDescription: Public Security Group
       SecurityGroupIngress:
         # Internet
@@ -146,6 +187,11 @@ Resources:
   ProtectSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       GroupDescription: Protect Security Group
       SecurityGroupIngress:
         # Public Subnet AZa
@@ -235,6 +281,11 @@ Resources:
   PrivateSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       GroupDescription: Private Security Group
       SecurityGroupIngress:
         # Private Subnet AZa
@@ -260,6 +311,12 @@ Resources:
   # VPC Internet rooting
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -268,6 +325,11 @@ Resources:
   PublicSubnetRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
   RouteInternetGateway:
     Type: AWS::EC2::Route
@@ -292,10 +354,20 @@ Resources:
   ElasticIPAZa:
     Type: AWS::EC2::EIP
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       Domain: vpc
   NatGatewayAZa:
     Type: AWS::EC2::NatGateway
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       AllocationId: !GetAtt ElasticIPAZa.AllocationId
       SubnetId: !Ref PublicSubnetAZa
     DependsOn:
@@ -303,6 +375,11 @@ Resources:
   ProtectSubnetRouteTableAZa:
     Type: AWS::EC2::RouteTable
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
   RouteNatGatewayAZa:
     Type: AWS::EC2::Route
@@ -320,10 +397,20 @@ Resources:
   ElasticIPAZc:
     Type: AWS::EC2::EIP
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       Domain: vpc
   NatGatewayAZc:
     Type: AWS::EC2::NatGateway
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       AllocationId: !GetAtt ElasticIPAZc.AllocationId
       SubnetId: !Ref PublicSubnetAZc
     DependsOn:
@@ -331,6 +418,11 @@ Resources:
   ProtectSubnetRouteTableAZc:
     Type: AWS::EC2::RouteTable
     Properties:
+      Tags:
+        - Key: SystemId
+          Value: !Sub "${SystemId}"
+        - Key: Env
+          Value: !Sub "${Env}"
       VpcId: !Ref VPC
   ProtectSubnetRouteAZc:
     Type: AWS::EC2::Route
@@ -361,43 +453,43 @@ Outputs:
   VPC:
     Value: !Ref VPC
     Export:
-      Name: !Sub "${SystemId}-VPC"
+      Name: !Sub "${SystemId}-${Env}-VPC"
 
   PublicSubnetAZa:
     Value: !Ref PublicSubnetAZa
     Export:
-      Name: !Sub "${SystemId}-PublicSubnetAZa"
+      Name: !Sub "${SystemId}-${Env}-PublicSubnetAZa"
   ProtectSubnetAZa:
     Value: !Ref ProtectSubnetAZa
     Export:
-      Name: !Sub "${SystemId}-ProtectSubnetAZa"
+      Name: !Sub "${SystemId}-${Env}-ProtectSubnetAZa"
   PrivateSubnetAZa:
     Value: !Ref PrivateSubnetAZa
     Export:
-      Name: !Sub "${SystemId}-PrivateSubnetAZa"
+      Name: !Sub "${SystemId}-${Env}-PrivateSubnetAZa"
 
   PublicSubnetAZc:
     Value: !Ref PublicSubnetAZc
     Export:
-      Name: !Sub "${SystemId}-PublicSubnetAZc"
+      Name: !Sub "${SystemId}-${Env}-PublicSubnetAZc"
   ProtectSubnetAZc:
     Value: !Ref ProtectSubnetAZc
     Export:
-      Name: !Sub "${SystemId}-ProtectSubnetAZc"
+      Name: !Sub "${SystemId}-${Env}-ProtectSubnetAZc"
   PrivateSubnetAZc:
     Value: !Ref PrivateSubnetAZc
     Export:
-      Name: !Sub "${SystemId}-PrivateSubnetAZc"
+      Name: !Sub "${SystemId}-${Env}-PrivateSubnetAZc"
 
   PublicSecurityGroup:
     Value: !Ref PublicSecurityGroup
     Export:
-      Name: !Sub "${SystemId}-PublicSecurityGroup"
+      Name: !Sub "${SystemId}-${Env}-PublicSecurityGroup"
   ProtectSecurityGroup:
     Value: !Ref ProtectSecurityGroup
     Export:
-      Name: !Sub "${SystemId}-ProtectSecurityGroup"
+      Name: !Sub "${SystemId}-${Env}-ProtectSecurityGroup"
   PrivateSecurityGroup:
     Value: !Ref PrivateSecurityGroup
     Export:
-      Name: !Sub "${SystemId}-PrivateSecurityGroup"
+      Name: !Sub "${SystemId}-${Env}-PrivateSecurityGroup"
