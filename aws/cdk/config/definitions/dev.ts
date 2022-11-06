@@ -1,7 +1,10 @@
 import { AppRunner, Pipeline } from '../types'
 
 export const appRunner: AppRunner = {
-  hoge: 'hoge'
+  instance: {
+    cpu: '1',
+    memory: '2'
+  }
 }
 
 export const pipeline: Pipeline = {
