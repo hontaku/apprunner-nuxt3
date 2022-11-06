@@ -14,7 +14,7 @@ phases:
 
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo $IMAGE_TAG
-      - aws ecr get-login-password | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - aws ecr get-login-password | docker login --username AWS --password-stdin $CONTAINER_REPOSITORY_URI
   build:
     commands:
       - docker build --force-rm=true -t $REPOSITORY_URI:latest .
