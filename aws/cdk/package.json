@@ -10,7 +10,7 @@
     "deploy:pipeline-dev": "cdk deploy apprunner-nuxt3-dev-pipeline-stack -c env=dev",
     "deploy:pipeline-stg": "cdk deploy apprunner-nuxt3-stg-pipeline-stack -c env=stg",
     "deploy:pipeline-prod": "cdk deploy apprunner-nuxt3-prod-pipeline-stack -c env=prod",
-    "synth:uat": "cdk synth -c env=dev",
+    "synth:dev": "cdk synth -c env=dev",
     "synth:stg": "cdk synth -c env=stg",
     "synth:prod": "cdk synth -c env=prod"
   },
