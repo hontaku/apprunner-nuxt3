@@ -17,12 +17,12 @@ phases:
       - aws ecr get-login-password | docker login --username AWS --password-stdin $CONTAINER_REPOSITORY_URI
   build:
     commands:
-      - docker build --force-rm=true -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker build --force-rm=true -t $CONTAINER_REPOSITORY_URI:latest .
+      - docker tag $CONTAINER_REPOSITORY_URI:latest $CONTAINER_REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $CONTAINER_REPOSITORY_URI:latest
+      - docker push $CONTAINER_REPOSITORY_URI:$IMAGE_TAG
 
 artifacts:
   files:
