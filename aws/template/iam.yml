@@ -117,7 +117,7 @@ Resources:
             Action:
               - iam:CreateServiceLinkedRole
             Resource:
-              - 'arn:aws:iam::*:role/aws-service-role/apprunner.amazonaws.com/AWSServiceRoleForAppRunner'
+              - '*'
       Roles:
         - !Ref CodePipelineServiceRole
 
