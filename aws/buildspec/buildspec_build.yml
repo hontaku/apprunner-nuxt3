@@ -23,6 +23,7 @@ phases:
     commands:
       - docker push $CONTAINER_REPOSITORY_URI:latest
       - docker push $CONTAINER_REPOSITORY_URI:$IMAGE_TAG
+      - echo $IMAGE_TAG > imageTag
 
 artifacts:
   files:

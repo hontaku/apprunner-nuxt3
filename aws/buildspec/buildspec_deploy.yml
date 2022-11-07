@@ -14,7 +14,8 @@ phases:
       - echo 'pre build'
       - export TZ="Asia/Tokyo"
 
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - cd ${CODEBUILD_SRC_DIR}/
+      - IMAGE_TAG=$(cat ./imageTag)
       - echo $IMAGE_TAG
   post_build:
     commands:
