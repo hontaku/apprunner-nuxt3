@@ -52,7 +52,7 @@ export class AppRunnerStack extends Stack {
         },
         imageRepository: {
           imageIdentifier: `${Fn.importValue(`${systemId}-${env}-container-repository-uri`)}:${imageTag}`,
-          imageRepositoryType: 'private',
+          imageRepositoryType: 'ECR',
           imageConfiguration: {
             runtimeEnvironmentVariables: [
               { name: 'ENV', value: env },
