@@ -15,7 +15,13 @@
     "deploy:apprunner-prod": "cdk deploy apprunner-nuxt3-prod-apprunner-stack -c env=prod",
     "synth:dev": "cdk synth -c env=dev",
     "synth:stg": "cdk synth -c env=stg",
-    "synth:prod": "cdk synth -c env=prod"
+    "synth:prod": "cdk synth -c env=prod",
+    "diff:apprunner-dev": "cdk diff apprunner-nuxt3-dev-apprunner-stack -c env=dev",
+    "diff:apprunner-stg": "cdk diff apprunner-nuxt3-stg-apprunner-stack -c env=stg",
+    "diff:apprunner-prod": "cdk diff apprunner-nuxt3-prod-apprunner-stack -c env=prod",
+    "diff:pipeline-dev": "cdk diff apprunner-nuxt3-dev-pipeline-stack -c env=dev",
+    "diff:pipeline-stg": "cdk diff apprunner-nuxt3-stg-pipeline-stack -c env=stg",
+    "diff:pipeline-prod": "cdk diff apprunner-nuxt3-prod-pipeline-stack -c env=prod"
   },
   "devDependencies": {
     "@types/node": "18.11.9",

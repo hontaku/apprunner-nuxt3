@@ -6,6 +6,8 @@ phases:
     commands:
       - echo 'install'
       - aws --version
+      - cd ${CODEBUILD_SRC_DIR}/aws/cdk
+      - npm ci
 
   pre_build:
     commands:
@@ -24,6 +26,7 @@ phases:
       - docker push $CONTAINER_REPOSITORY_URI:latest
       - docker push $CONTAINER_REPOSITORY_URI:$IMAGE_TAG
       - echo $IMAGE_TAG > imageTag
+      - npm run diff:apprunner-${ENV} -- -c imageTag=$IMAGE_TAG
 
 artifacts:
   files:
