@@ -23,23 +23,23 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       RepositoryName: !Sub '${SystemId}'
-      RepositoryDescription: "String"
+      RepositoryDescription: 'String'
 
   ContainerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${SystemId}-${Env}"
+      RepositoryName: !Sub '${SystemId}-${Env}'
       EncryptionConfiguration:
-        EncryptionType: "KMS"
+        EncryptionType: 'KMS'
       ImageScanningConfiguration:
         ScanOnPush: false
-      ImageTagMutability: "MUTABLE"
+      ImageTagMutability: 'MUTABLE'
 
   PipelineTemporaryBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: "Private"
-      BucketName: !Sub "${SystemId}-${Env}-temporary"
+      AccessControl: 'Private'
+      BucketName: !Sub '${SystemId}-${Env}-temporary'
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 7
@@ -55,35 +55,35 @@ Outputs:
     Condition: CreateDevResources
     Value: !GetAtt Repository.Name
     Export:
-      Name: !Sub "${SystemId}-repository-name"
+      Name: !Sub '${SystemId}-repository-name'
   RepositoryArn:
     Condition: CreateDevResources
     Value: !GetAtt Repository.Arn
     Export:
-      Name: !Sub "${SystemId}-repository-arn"
+      Name: !Sub '${SystemId}-repository-arn'
 
   ContainerRepositoryName:
     Value: !Ref ContainerRepository
     Export:
-      Name: !Sub "${SystemId}-${Env}-container-repository-name"
+      Name: !Sub '${SystemId}-${Env}-container-repository-name'
   ContainerRepositoryUri:
     Value: !GetAtt ContainerRepository.RepositoryUri
     Export:
-      Name: !Sub "${SystemId}-${Env}-container-repository-uri"
+      Name: !Sub '${SystemId}-${Env}-container-repository-uri'
   ContainerRepositoryArn:
     Value: !GetAtt ContainerRepository.Arn
     Export:
-      Name: !Sub "${SystemId}-${Env}-container-repository-arn"
+      Name: !Sub '${SystemId}-${Env}-container-repository-arn'
 
   PipelineTemporaryBucketName:
     Value: !Ref PipelineTemporaryBucket
     Export:
-      Name: !Sub "${SystemId}-${Env}-pipeline-temporary-bucket-name"
+      Name: !Sub '${SystemId}-${Env}-pipeline-temporary-bucket-name'
   PipelineTemporaryBucketArn:
     Value: !GetAtt PipelineTemporaryBucket.Arn
     Export:
-      Name: !Sub "${SystemId}-${Env}-pipeline-temporary-bucket-arn"
+      Name: !Sub '${SystemId}-${Env}-pipeline-temporary-bucket-arn'
   PipelineTemporaryBucketDomainName:
     Value: !GetAtt PipelineTemporaryBucket.DomainName
     Export:
-      Name: !Sub "${SystemId}-${Env}-pipeline-temporary-bucket-domain-name"
+      Name: !Sub '${SystemId}-${Env}-pipeline-temporary-bucket-domain-name'
