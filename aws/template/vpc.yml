@@ -318,7 +318,7 @@ Resources:
           Value: !Sub 'Private'
       GroupDescription: Private Security Group
       SecurityGroupIngress:
-        # Private Subnet AZa
+        # Protect Subnet AZa
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
@@ -327,7 +327,7 @@ Resources:
           FromPort: 3306
           ToPort: 3306
           CidrIp: !Sub '${NwSeg}.64/26'
-        # Private Subnet AZc
+        # Protect Subnet AZc
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
