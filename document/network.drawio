@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="u0bUvYZGX3SuIakVyn6Y" name="network-resource">
-        <mxGraphModel dx="1945" dy="1644" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1945" dy="1951" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -128,6 +128,14 @@
                             <mxPoint x="290" y="290"/>
                             <mxPoint x="290" y="220"/>
                             <mxPoint x="190" y="220"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="56" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=#B3B3B3;strokeWidth=3;" edge="1" parent="1" source="30" target="36">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="680" y="-100"/>
+                            <mxPoint x="680" y="344"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
