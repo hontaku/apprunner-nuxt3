@@ -60,6 +60,22 @@ Resources:
       Roles:
         - !Ref AppRunnerServiceRole
 
+  ParameterAccessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: ParameterAccessPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+            Resource:
+              - !Sub 'arn:aws:ssm:${AWS::Region}:*:parameter/*'
+      Roles:
+        - !Ref AppRunnerServiceRole
+
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
     Properties:
